@@ -25,36 +25,37 @@ struct vertice
 
 struct vizinhos* criaVizinho(int);
 struct vertice* criaVertice(int);
-void LimpaListaVertice(struct vertice **);
-void LimpaListaVizinhos(struct vizinhos **);
-void InsereVerticeFim(struct vertice**, int);
-void InsereVizinhoFim(struct vizinhos**, int);
 struct vertice* BuscaVertice(struct vertice*, int);
 struct vizinhos* BuscaVizinho(struct vizinhos*, int);
+void LimpaListaVertice(struct vertice **);
+void LimpaListaVizinhos(struct vizinhos **);
+void InsereVerticeFim(struct vertice**, int, int*);
+void InsereVizinhoFim(struct vizinhos**, int);
 void ExcluiVizinho(struct vizinhos**, int);
-void ExcluiVertice(struct vertice**, int);
+void ExcluiVertice(struct vertice**, int, int*);
 void ExcluiAresta(struct vertice**, int, int);
 void AdicionaAresta(struct vertice**, int, int);
 void ImprimeVizinhos(struct vizinhos*);
+void ImprimeGrafo(struct vertice*);
 
 
 int main()
 {
     //inicializa bando de gente
     FILE* Arquivo = NULL; struct vertice* ListaVertice = NULL;
-    int vertices = 0; int arestas = 0; int i, j, v1, v2; 
-    struct vertice* TempVert;
+    int VerticesLidos = 0; int arestas = 0; int i, j, v1, v2;
+    int VerticesAdicionados = 0; struct vertice* TempVert;
     ////////////////////////////////////////////////////
 
 
     //abre arquivo, le N e M
     Arquivo = fopen ("grafo1.txt","r");
-    fscanf(Arquivo, "%d\t%d", &vertices, &arestas);
+    fscanf(Arquivo, "%d\t%d", &VerticesLidos , &arestas);
     ///////////////////////////////////////////////
 
-    for(i = 0; i < vertices; i++)
+    for(i = 0; i < VerticesLidos; i++)
     {
-      InsereVerticeFim(&ListaVertice, i);
+      InsereVerticeFim(&ListaVertice, i, &VerticesAdicionados);
     }
 
     for(i = 0; i < arestas; i++)
@@ -63,15 +64,14 @@ int main()
       AdicionaAresta(&ListaVertice, v1, v2);
     }
 
-    ExcluiAresta(&ListaVertice, 0, 2);
 
-    for(i = 0; i < vertices; i++)
-    {
-      TempVert = BuscaVertice(ListaVertice, i);
-      printf("Vizinhos do vertice %d\n", i);
-      ImprimeVizinhos(TempVert->listavizinhos);
-      printf("\n");
-    }
+    ExcluiVertice(&ListaVertice, 3, &VerticesAdicionados);
+    printf("Excluído o vértice 3\n\n");
+
+    ExcluiAresta(&ListaVertice, 0, 4);
+    printf("Excluída a aresta 0, 4\n\n");
+
+    ImprimeGrafo(ListaVertice);
 
     LimpaListaVertice(&ListaVertice);
     fclose(Arquivo);
@@ -100,7 +100,6 @@ struct vertice* criaVertice(int v)
 }
 
 
-//seja o que deus quiser
 void LimpaListaVertice(struct vertice ** p)
 {
     if (*p)
@@ -124,11 +123,11 @@ void LimpaListaVizinhos(struct vizinhos ** p)
 }
 
 
-void InsereVerticeFim(struct vertice** p, int v)
+void InsereVerticeFim(struct vertice** p, int v, int* N)
 {
     if (*p)
     {
-        InsereVerticeFim(&((*p)->prox), v);
+        InsereVerticeFim(&((*p)->prox), v, N);
     }
 
     else
@@ -137,6 +136,8 @@ void InsereVerticeFim(struct vertice** p, int v)
         elem->prox = NULL;
         elem->listavizinhos = NULL;
         *p = elem;
+
+        (*N)++;
     }
 }
 
@@ -217,16 +218,30 @@ void ExcluiVizinho(struct vizinhos** p, int v)
             ExcluiVizinho(&((*p)->prox), v);
         }
     }
-
-    else
-    {
-        printf("Elemento não encontrado!\n");
-    }
 }
 
-void ExcluiVertice(struct vertice** p, int v)
+
+void ExcluiVertice(struct vertice** p, int v, int* N)
 {
-    //ah mano sei la, depois eu vejo
+    if(*p)
+    {
+      ExcluiVertice( &((*p)->prox), v, N);
+      ExcluiVizinho( &((*p)->listavizinhos), v );
+      if((*p)->valor == v)
+      {
+        struct vertice* e = *p;
+        *p = e->prox;
+        free(e);
+
+
+        (*N)--;
+      }
+
+      else
+      {
+        ExcluiVertice( &((*p)->prox), v, N);
+      }
+    }
 }
 
 
@@ -260,5 +275,17 @@ void ImprimeVizinhos(struct vizinhos* p)
   else
   {
     printf("Sem mais vizinhos.\n");
+  }
+}
+
+
+void ImprimeGrafo(struct vertice* p)
+{
+  if (p)
+  {
+    printf("Vizinhos do vertice %d:\n", p->valor);
+    ImprimeVizinhos(p->listavizinhos);
+    printf("\n\n");
+    ImprimeGrafo(p->prox);
   }
 }
