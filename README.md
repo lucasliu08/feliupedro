@@ -7,3 +7,7 @@ representações de grafos: matriz de adjacencia e lista de adjacencias.
 Fazer testes com cada um dos métodos esperados: (a) Cria grafo lendo de
 arquivo; (b) adiciona/remove um vértice (c) adiciona/remove uma nova
 aresta (d) retorna uma lista de nós vizinhos de um dado vértice
+
+Felipe Mayrink
+Pedro Vasconsellos
+Lucas Liu
