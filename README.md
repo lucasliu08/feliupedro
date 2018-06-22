@@ -9,5 +9,8 @@ arquivo; (b) adiciona/remove um vértice (c) adiciona/remove uma nova
 aresta (d) retorna uma lista de nós vizinhos de um dado vértice
 
 Felipe Mayrink
+
 Pedro Vasconsellos
+
 Lucas Liu
+
